@@ -11,13 +11,6 @@ function cardStyle(card: LyricCard) {
   if (card.templateId === 'minimal') {
     return { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
   }
-  if (card.cover) {
-    return {
-      backgroundImage: `url(${card.cover})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    }
-  }
   if (card.templateId === 'cover') {
     return { background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%)' }
   }
@@ -93,6 +86,12 @@ function formatDate(timestamp: number) {
             class="card-preview relative aspect-[3/4] w-full overflow-hidden"
             :style="cardStyle(card)"
           >
+            <img
+              v-if="card.cover && card.templateId !== 'minimal'"
+              :src="card.cover"
+              alt=""
+              class="absolute inset-0 h-full w-full object-cover"
+            />
             <div v-if="card.templateId === 'cover'" class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10 p-4 flex flex-col justify-end text-white">
               <div class="space-y-1">
                 <p v-for="(line, index) in card.lyrics.slice(0, 6)" :key="index" class="text-xs font-medium leading-snug">{{ line }}</p>

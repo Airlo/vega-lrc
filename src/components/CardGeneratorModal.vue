@@ -24,6 +24,7 @@ const previewRef = ref<HTMLElement | null>(null)
 const isDownloading = ref(false)
 const isSaving = ref(false)
 const savedMessage = ref('')
+const coverDataUrl = ref('')
 
 const templates: { id: CardTemplateId; name: string; description: string }[] = [
   { id: 'cover', name: '封面卡片', description: '封面图 + 歌曲信息' },
@@ -44,36 +45,28 @@ const previewStyle = computed(() => {
     }
   }
   if (templateId.value === 'cover') {
-    return props.coverUrl
-      ? {
-          backgroundImage: `url(${props.coverUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }
-      : {
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%)',
-        }
+    return {
+      background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%)',
+    }
   }
-  return props.coverUrl
-    ? {
-        backgroundImage: `url(${props.coverUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }
-    : {
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      }
+  return {
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+  }
 })
 
 watch(
   () => props.visible,
-  (visible) => {
+  async (visible) => {
     if (!visible) return
     selectedIndices.value = props.lyricLines
       .map((line, index) => (line.content ? index : -1))
       .filter((index) => index >= 0)
     templateId.value = 'cover'
     savedMessage.value = ''
+    coverDataUrl.value = ''
+    if (props.coverUrl) {
+      coverDataUrl.value = (await objectUrlToDataUrl(props.coverUrl)) ?? ''
+    }
   },
 )
 
@@ -115,7 +108,9 @@ async function saveCard() {
   isSaving.value = true
   try {
     let cover: string | undefined
-    if (props.coverUrl) {
+    if (coverDataUrl.value) {
+      cover = coverDataUrl.value
+    } else if (props.coverUrl) {
       cover = await objectUrlToDataUrl(props.coverUrl)
     }
     const card: LyricCard = {
@@ -172,6 +167,12 @@ async function downloadCard() {
             class="relative aspect-[3/4] w-full overflow-hidden rounded-2xl shadow-xl"
             :style="previewStyle"
           >
+            <img
+              v-if="coverDataUrl && templateId !== 'minimal'"
+              :src="coverDataUrl"
+              alt=""
+              class="absolute inset-0 h-full w-full object-cover"
+            />
             <div v-if="templateId === 'cover'" class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10 p-5 flex flex-col justify-end text-white">
               <div v-if="selectedLyrics.length" class="space-y-1.5">
                 <p v-for="(line, index) in selectedLyrics.slice(0, 6)" :key="index" class="text-sm font-medium leading-snug">{{ line }}</p>
