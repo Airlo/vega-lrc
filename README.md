@@ -71,3 +71,20 @@ npm run preview
 - Wavesurfer.js
 - music-metadata
 - html-to-image
+
+## GitHub Pages 部署
+
+本项目已配置好 GitHub Pages 部署：
+
+1. 推送代码到 GitHub 仓库 `Airlo/vega-lrc`
+2. 在仓库 Settings → Pages 中：
+   - Source 选择 `GitHub Actions`
+3. 每次推送到 `main` 分支会自动构建并部署
+
+部署地址：
+
+```
+https://<你的用户名>.github.io/vega-lrc/
+```
+
+当前路由使用 Hash 模式，刷新页面不会 404。
